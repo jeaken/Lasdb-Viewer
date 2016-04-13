@@ -231,12 +231,12 @@ PCDviewr.PointCloudOctree.prototype.setViewMode = function(Three_Points){
     if(Three_Points.geometry.ViewMode != this.ViewMode){
         switch ( this.ViewMode ){
             case "color_Specified":
-                /*            for(var i = 0;i<geometryNode.numPoints;i++){
-                 geometryNode.color[3*i] = specifiedColor;
-                 geometryNode.color[3*i+1] = specifiedColor;
-                 geometryNode.color[3*i+2] = specifiedColor;
-                 }
-                 */
+                for(var i = 0;i<Three_Points.geometry.attributes.position.count;i++){
+                    Three_Points.geometry.attributes.color.array[3*i] = specifiedColor = 0;
+                    Three_Points.geometry.attributes.color.array[3*i+1] = specifiedColor = 0;
+                    Three_Points.geometry.attributes.color.array[3*i+2] = specifiedColor = 0;
+                }
+                 
                 Three_Points.geometry.ViewMode = "color_Specified";
                 Three_Points.geometry.attributes.color.needsUpdate = true;
                 break;
