@@ -20,7 +20,11 @@ function POCLoader(){
 POCLoader.load = function load(url) {
 		var pco = new PCDviewr.PointCloudOctreeGeometry();
         pco.url = url;
+<<<<<<< HEAD
 		var pco_url = url + "/proj.qtx";
+=======
+		var pco_url = url + "/tree.octree";
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         try{
             //load pointcloud octree metadata
             var pco_xhr = new XMLHttpRequest();
@@ -28,6 +32,7 @@ POCLoader.load = function load(url) {
             pco_xhr.send(null);
             if(pco_xhr.status === 200 || pco_xhr.status === 0){
                 var fMno = JSON.parse(pco_xhr.responseText);
+<<<<<<< HEAD
                 pco.cache_folder = fMno.cache_folder;
                 //pco.depth =fMno.depth;
                 //pco.has_pano =fMno.has_pano;
@@ -55,6 +60,14 @@ POCLoader.load = function load(url) {
                 //pco.wholePointNum =fMno.wholePointNum;
                 pco.lod = fMno.maxdepth;
                 pco.numpts = fMno.wholePointNum;
+=======
+                pco.name = fMno.name;
+                pco.version = fMno.version;
+                pco.pointtype = fMno.pointtype;
+                pco.lod = fMno.lod;
+                pco.numpts = fMno.numpts;
+                pco.coord_system = fMno.coord_system;
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
             }
         }catch(e){
             console.log("loading failed: '" + pco_url + "'");
@@ -64,6 +77,7 @@ POCLoader.load = function load(url) {
         var nodes = {};
 
         {//load root
+<<<<<<< HEAD
             var name = "0";
             var min = new THREE.Vector3(pco.minx, pco.miny, pco.minz);
             var max = new THREE.Vector3(pco.maxx, pco.maxy, pco.maxz);
@@ -125,6 +139,113 @@ POCLoader.loadremainingnodes = function(node,url,pco){
         //return ;
     }
     /*if(depth !== 0){
+=======
+            var name = "r";
+            var xhr = new XMLHttpRequest();
+            var root_url = url + "/tree.oct_idx";
+            xhr.open('GET', root_url, false);
+            xhr.send(null);
+            if(xhr.status === 200 || xhr.status === 0){
+                var fMno = JSON.parse(xhr.responseText);
+                var min = new THREE.Vector3(fMno.bb_min[0], fMno.bb_min[1], fMno.bb_min[2]);
+                var max = new THREE.Vector3(fMno.bb_max[0], fMno.bb_max[1], fMno.bb_max[2]);
+                var boundingBox = new THREE.Box3(min,max);
+                pco.boundingBox = boundingBox;
+
+                var root = new PCDviewr.PointCloudOctreeGeometryNode(name, pco, boundingBox);
+                root.dir = "";
+                root.bin = fMno.bin;
+                root.name = name;
+                root.level = 0;
+                root.numPoints = pco.numpts[0];
+                pco.root = root;
+                var nump = pco.root.load(url);
+                nodes[name] = root;
+            }
+            else{
+                console.log("loading tree.oct_idx failed...");
+            }
+        }
+        //load remaining nodes
+        POCLoader.loadremainingnodes(nodes["r"],url,pco,pco.lod);
+
+        /*
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', pco.url, false);
+		xhr.send(null);
+		if(xhr.status === 200 || xhr.status === 0){
+			var fMno = JSON.parse(xhr.responseText);
+
+			var nodes = {};
+			{ // load root
+				var name = "0";
+				var min = new THREE.Vector3(fMno.boundingBox.lx, fMno.boundingBox.ly, fMno.boundingBox.lz);
+				var max = new THREE.Vector3(fMno.boundingBox.ux, fMno.boundingBox.uy, fMno.boundingBox.uz);
+				var boundingBox = new THREE.Box3(min, max);
+				pco.boundingBox = boundingBox;
+				
+				var root = new PCDviewr.PointCloudOctreeGeometryNode(name, pco, boundingBox);
+				root.level = 0;
+				root.numPoints = fMno.hierarchy[0][1];
+				pco.root = root;
+				pco.root.load();
+				nodes[name] = root;
+			}
+			
+			// load remaining hierarchy
+			for( var i = 1; i < fMno.hierarchy.length; i++){
+				var name = fMno.hierarchy[i][0];
+				var numPoints = fMno.hierarchy[i][1];
+				var index = parseInt(name.charAt(name.length-1));
+				var parentName = name.substring(0, name.length-1);
+				var parentNode = nodes[parentName];
+				var points = fMno.hierarchy[i][1];
+				var level = name.length-1;
+				var boundingBox = POCLoader.createChildAABB(parentNode.boundingBox, index);
+				
+				var node = new PCDviewr.PointCloudOctreeGeometryNode(name, pco, boundingBox);
+				node.level = level;
+				node.numPoints = numPoints;
+				parentNode.addChild(node);
+				nodes[name] = node;
+			}
+			
+			pco.nodes = nodes;
+			
+		}   */
+        pco.nodes = nodes;
+		return pco;
+
+};
+
+POCLoader.xhroctreeindex = function(name,dir,level,pco,url){
+    var xhr = new XMLHttpRequest();
+    var node_url = url + "/tree (1).oct_idx";
+    xhr.open('GET', node_url, false);
+    xhr.send(null);
+    if(xhr.status === 200 || xhr.status === 0){
+        var fMno = JSON.parse(xhr.responseText);
+        var min = new THREE.Vector3(fMno.bb_min[0], fMno.bb_min[1], fMno.bb_min[2]);
+        var max = new THREE.Vector3(fMno.bb_max[0], fMno.bb_max[1], fMno.bb_max[2]);
+        var boundingBox = new THREE.Box3(min,max);
+
+        var node = new PCDviewr.PointCloudOctreeGeometryNode(name, pco, boundingBox);
+        node.name = name;
+        node.dir = dir;
+        node.bin = fMno.bin;
+        node.level = level;
+        node.numPoints = undefined;   //can't obtain points number now!!
+        return node;
+    }
+    else{
+        return 0;
+        console.log("loading failed:" + node_url);
+    }
+};
+
+POCLoader.loadremainingnodes = function(node,url,pco,depth){
+    if(depth !== 0){
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         if(PCDviewr.utils.pathExists(url + "/0")){
             var name,dir,level;
             name = node.name + "0";
@@ -213,6 +334,7 @@ POCLoader.loadremainingnodes = function(node,url,pco){
                 POCLoader.loadremainingnodes(childnode,url + "/7",pco,depth-1);
             }
         }
+<<<<<<< HEAD
     }*/
 };
 
@@ -266,3 +388,22 @@ POCLoader.createChildBoundingBox = function(boundingbox,index){
     }
     return new THREE.Box3(min,max);
 };
+=======
+    }
+};
+
+POCLoader.loadPointAttributes = function(mno){
+	
+	var fpa = mno.pointAttributes;
+	var pa = new PointAttributes();
+	
+	for(var i = 0; i < fpa.length; i++){   
+		var pointAttribute = PointAttribute[fpa[i]];
+		pa.add(pointAttribute);
+	}                                                                     
+	
+	return pa;
+};
+
+
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e

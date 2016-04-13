@@ -5,6 +5,10 @@ PCDviewr.utils = function(){
 
 PCDviewr.utils.pathExists = function(url){
     try{
+<<<<<<< HEAD
+=======
+        var url = url + "/tree (1).oct_idx";
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         var req = new XMLHttpRequest();
         req.open('GET', url, false);
         req.send(null);

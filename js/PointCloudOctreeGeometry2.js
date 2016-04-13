@@ -15,11 +15,15 @@ PCDviewr.PointCloudOctreeGeometryNode = function(name, pcoGeometry, boundingBox)
 	this.children = {};
 	this.numPoints = 0;
 	this.level = null;
+<<<<<<< HEAD
 	this.hasXYZ = true;
     this.hasIntensity = false;
     this.hasRGB = false;
     this.hasClass = false;
     this.hasRetain = false;
+=======
+	
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 }
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.addChild = function(child){
@@ -29,7 +33,11 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.addChild = function(child){
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 	if(this.loading === true || this.pcoGeometry.numNodesLoading > 3){
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 	}
 	
 	if(PCDviewr.PointCloudOctree.lru.numPoints + this.numPoints >= PCDviewr.pointLoadLimit){
@@ -37,6 +45,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 	}
 	
 	var pointsnumber = 0;
+<<<<<<< HEAD
     this.pcoGeometry.numNodesLoading++;
 	this.loading = true;
 	var node = this;
@@ -46,6 +55,16 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 	try{
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', node_url, true);
+=======
+	this.pcoGeometry.numNodesLoading++;
+	this.loading = true;
+	var url = url + this.dir + "/" + this.bin;
+	var node = this;
+    //node.pcdLoad(url);
+	try{
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', url, true);
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 	xhr.responseType = 'arraybuffer';
 	xhr.overrideMimeType('text/plain; charset=x-user-defined');
 	xhr.onreadystatechange = function() {
@@ -54,6 +73,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 				var buffer = xhr.response;
                 pointsnumber = node.bufferLoaded(buffer);
 			} else {
+<<<<<<< HEAD
 				console.log('Failed to load file! HTTP status: ' + xhr.status + ", file: " + node_url);
 			}
 		}
@@ -69,6 +89,23 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 PCDviewr.PointCloudOctreeGeometryNode.prototype.pcdLoad = function(node_url){
     var loader = new THREE.PCDLoader();
     loader.load(node_url, function (geometry) {
+=======
+				console.log('Failed to load file! HTTP status: ' + xhr.status + ", file: " + url);
+			}
+		}
+	};
+	
+		xhr.send(null);
+	}catch(e){
+		console.log("Failed to load file: " + e);
+	}
+    return pointsnumber;
+}
+
+PCDviewr.PointCloudOctreeGeometryNode.prototype.pcdLoad = function(url){
+    var loader = new THREE.PCDLoader();
+    loader.load(url, function (geometry) {
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         var geometry = geometry;
         geometry.boundingBox = this.boundingBox;
         this.geometry = geometry;
@@ -82,6 +119,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.pcdLoad = function(node_url){
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
 	//console.log("loaded: " + this.name);
+<<<<<<< HEAD
     var little_endian = true;
     var headerlength = 8;
     if ( buffer == null ) {return 0;}
@@ -96,10 +134,24 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
     if(this.hasIntensity) Intensity = new Uint16Array(this.numPoints);
     if(this.hasRGB) RGB = new Uint16Array(this.numPoints*3);
     if(this.hasClass) Class = new Int32Array(this.numPoints);
+=======
+    var patternHeader = /#\s\.PCD([\s\S]*)binary_compressed\s|#\s\.PCD([\s\S]*)binary\s|#\s\.PCD([\s\S]*)ascii\s/;
+    var head = patternHeader.exec( bin2str(buffer) );
+    var headerlength;
+    if ( head !== null ) {
+        headerlength = head[ 0 ].length;
+
+	var geometry = new THREE.BufferGeometry();
+	var numPoints = (buffer.byteLength-headerlength) / 16;   // 仅适用于“x y z rgb”16 bytes
+	
+	var positions = new Float32Array(numPoints*3);
+	var colors = new Float32Array(numPoints*3);
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 	var color = new THREE.Color();
 	var body = new DataView(buffer,headerlength);
 	//var fView = new Float32Array(buffer);
 	//var uiView = new Uint8Array(buffer);
+<<<<<<< HEAD
     var _minx,_miny,_minz,_maxx,_maxy,_maxz;
     _minx = _maxx = this.binaryRead( body, 0, "F", "4", little_endian )[0];
     _miny = _maxy = this.binaryRead( body, 4, "F", "4", little_endian )[0];
@@ -107,11 +159,26 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
     var result, loc = 0;
 	for(var i = 0; i < this.numPoints; i++){
         result = this.binaryReadElement( body, loc, little_endian );
+=======
+    var result, loc = 0;
+	for(var i = 0; i < numPoints; i++){
+/*		positions[3*i] = fView[4*i];
+		positions[3*i+1] = fView[4*i+1];
+		positions[3*i+2] = fView[4*i+2];
+		
+		color.setRGB(uiView[16*i+12], uiView[16*i+13], uiView[16*i+14]);
+		colors[3*i] = color.r /255;
+		colors[3*i+1] = color.g / 255;
+		colors[3*i+2] = color.b / 255;  */
+
+        result = binaryReadElement( body, loc, true );
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         loc += result[ 1 ];
         var element = result[ 0 ];
         positions[3*i] = element.x;
         positions[3*i+1] = element.y;
         positions[3*i+2] = element.z;
+<<<<<<< HEAD
         if(element.x < _minx) _minx = element.x;
         if(element.x > _maxx) _maxx = element.x;
         if(element.y < _miny) _miny = element.y;
@@ -119,10 +186,14 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
         if(element.z < _minz) _minz = element.z;
         if(element.z > _maxz) _maxz = element.z;
 /*      var a = "#";
+=======
+        var a = "#";
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         color.setStyle(a += element.rgb.toString(16));
         colors[3*i] = color.r;
         colors[3*i+1] = color.g;
         colors[3*i+2] = color.b;
+<<<<<<< HEAD
 */
         if(this.hasRetain){
             Retain[i] = element.retain;
@@ -185,6 +256,19 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
         };
 
         this.numPoints = headerDataView.getUint32(4,little_endian);
+=======
+	}
+	
+	geometry.addAttribute('position', new THREE.Float32Attribute(positions, 3));
+	geometry.addAttribute('color', new THREE.Float32Attribute(colors, 3));
+	geometry.boundingBox = this.boundingBox;
+	this.geometry = geometry;
+    this.numPoints = numPoints;  //!!!
+	this.loaded = true;
+	this.loading = false;
+	this.pcoGeometry.numNodesLoading--;
+        return numPoints;
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
     }
 
     function binaryReadElement ( dataview, at, little_endian ) {
@@ -193,12 +277,16 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
             x:undefined,
             y:undefined,
             z:undefined,
+<<<<<<< HEAD
             retain:undefined,
             intensity:undefined,
             r:undefined,
             g:undefined,
             b:undefined,
             class:undefined
+=======
+            rgb:undefined
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
         };
         var result, read = 0;
 
@@ -213,6 +301,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
         result = binaryRead( dataview, at + read, "F", "4", little_endian );
         element.z = result[ 0 ];
         read += result[ 1 ];
+<<<<<<< HEAD
         if(this.hasRetain) {
             result = binaryRead( dataview, at + read, "U", "8", little_endian );
             element.retain = result[ 0 ];
@@ -243,6 +332,15 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
         }
 
         return [ element, read ];
+=======
+
+        result = binaryRead( dataview, at + read, "U", "4", little_endian );
+        element.rgb = result[ 0 ];
+        read += result[ 1 ];
+
+        return [ element, read ];
+
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
     }
 
     function binaryRead ( dataview, at, TYPE, SIZE, little_endian ) {
@@ -295,7 +393,11 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
 
         return str;
 
+<<<<<<< HEAD
     } */
+=======
+    }
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 }
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.dispose = function(){
@@ -303,6 +405,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.dispose = function(){
 	this.loaded = false;
 	
 	//console.log("dispose: " + this.name);
+<<<<<<< HEAD
 }
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.parseHeader = function(headerDataView,little_endian){
@@ -418,4 +521,6 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.binaryRead = function(dataview, 
             console.log('what\'s wrong!!');
     }
 
+=======
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 }

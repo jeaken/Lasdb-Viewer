@@ -41,6 +41,7 @@ PCDviewr.PointCloudOctree = function(geometry, material){
 	this.LODDistance = 20;
 	this.LODFalloff = 1.3;
 	this.LOD = 4;
+<<<<<<< HEAD
 
     this.ViewMode = "color_Specified"; //color_Texture color_Intensity color_Class color_Height color_Specified(gray)
     this.maxIntensity = geometry.maxIntensity;
@@ -136,6 +137,9 @@ PCDviewr.PointCloudOctree = function(geometry, material){
     //UNKNOWN_PLANE;
     { 0.3f, 0.76f, 0.87f }
 };  */
+=======
+	
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 	
 	var rootProxy = new PCDviewr.PointCloudOctreeProxyNode(this.pcoGeometry.root);
 	this.add(rootProxy);  //this -> THREE.Object3D
@@ -160,8 +164,12 @@ PCDviewr.PointCloudOctree.prototype.update = function(camera){
 		var distance = boxWorld.center().distanceTo(camWorldPos);
 		var radius = boxWorld.size().length() * 0.5;
 		//var ratio = distance/(1100/this.LOD);
+<<<<<<< HEAD
 		var visible = true;
         //if(object.numPoints == 0 || object.numPoints === undefined) visible = false;
+=======
+		var visible = true; 
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 		visible = visible && frustum.intersectsBox(boxWorld);
 		if(object.level >= 1){
             //visible = visible && (ratio>=(this.LOD - object.level) && ratio<(this.LOD + 1 - object.level));
@@ -173,7 +181,14 @@ PCDviewr.PointCloudOctree.prototype.update = function(camera){
 		}else{
 			visible = true;
 		}
+<<<<<<< HEAD
 
+=======
+		
+		
+		
+		
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 		object.visible = visible;
 		
 		if(!visible){
@@ -183,8 +198,12 @@ PCDviewr.PointCloudOctree.prototype.update = function(camera){
 		
 		if(object instanceof THREE.Points){    //THREE.PointCloud -> THREE.Points
 			this.numVisibleNodes++;
+<<<<<<< HEAD
 			this.numVisiblePoints += object.numPoints;
             this.setViewMode(object);
+=======
+			//this.numVisiblePoints += object.numPoints;
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
             PCDviewr.PointCloudOctree.lru.touch(object);
 		}else if (object instanceof PCDviewr.PointCloudOctreeProxyNode) {
 			this.replaceProxy(object);
@@ -202,15 +221,21 @@ PCDviewr.PointCloudOctree.prototype.replaceProxy = function(proxy){
 	var geometryNode = proxy.geometryNode;
 	if(geometryNode.loaded == true){
 		var geometry = geometryNode.geometry;
+<<<<<<< HEAD
         geometry.ViewMode = "color_Specified";
+=======
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 		var node = new THREE.Points(geometry, this.material);  //THREE.PointCloud -> THREE.Points
 		node.name = proxy.name;
 		node.level = proxy.level;
 		node.numPoints = proxy.numPoints;
 		node.boundingBox = geometry.boundingBox;
 		node.pcoGeometry = geometryNode;
+<<<<<<< HEAD
         //this.setViewMode(node);
         node.geometry.colorsNeedUpdate = true;
+=======
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 		var parent = proxy.parent;
 		parent.remove(proxy);
 		parent.add(node);
@@ -223,6 +248,7 @@ PCDviewr.PointCloudOctree.prototype.replaceProxy = function(proxy){
 			}
 		}
 	}else{
+<<<<<<< HEAD
         this.numVisiblePoints += geometryNode.load(this.pcoGeometry.url + "/" + this.pcoGeometry.cache_folder);  //
 	}
 }
@@ -371,6 +397,12 @@ PCDviewr.PointCloudOctree.prototype.getColorByHeight = function(height){
     return color;
 }
 
+=======
+        this.numVisiblePoints += geometryNode.load(this.pcoGeometry.url);  //
+	}
+}
+
+>>>>>>> 77d73c8122e8a087b9dece73654d63d80a45cb2e
 PCDviewr.PointCloudOctree.prototype.hideDescendants = function(object){
 	var stack = [];
 	for(var i = 0; i < object.children.length; i++){
