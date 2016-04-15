@@ -34,8 +34,8 @@ PCDviewr.PointCloudOctree = function(geometry, material){
 	this.pcoGeometry = geometry;
 	this.boundingBox = this.pcoGeometry.boundingBox;
 	this.material = material;
-	this.maxVisibleNodes = 2000;
-	this.maxVisiblePoints = 20*1000*1000;
+	this.maxVisibleNodes = 50;
+	this.maxVisiblePoints = 2*1000*1000;
 	this.level = 0;
 	
 	this.LODDistance = 20;
@@ -54,9 +54,13 @@ PCDviewr.PointCloudOctree = function(geometry, material){
     _endPointColors.push(new THREE.Vector3(1.0, 1.0, 0));
     _endPointColors.push(new THREE.Vector3(1.0, 0, 0));
     this.endPointColors = _endPointColors;
-    this.maxz = geometry.maxz;
-    this.minz = geometry.minz;
-    this.rampLength = this.maxz - this.minz;
+    
+    this.statisticalMaxz = geometry.statisticalMaxz;
+    this.statisticalMinz = geometry.statisticalMinz;
+    this.offset_z = geometry.center.z;
+    this.maxHeight = this.statisticalMaxz - this.offset_z;
+    this.minHeight = this.statisticalMinz - this.offset_z;
+    this.rampLength = this.maxHeight - this.minHeight;
     this.sectionLength = this.rampLength / this.endPointColors.length;
 
     this.numVisiblePoints = 0;
@@ -344,7 +348,7 @@ PCDviewr.PointCloudOctree.prototype.getColorByClass = function(Class){
 }
 
 PCDviewr.PointCloudOctree.prototype.getColorByHeight = function(height){
-    var relevant_val = height - this.minz;
+    var relevant_val = height - this.minHeight;
     var index = Math.floor(relevant_val/this.sectionLength);
     var maxIndex = this.endPointColors.length - 1;
     var color = new THREE.Vector3();
