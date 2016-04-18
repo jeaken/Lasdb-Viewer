@@ -20,6 +20,7 @@ PCDviewr.PointCloudOctreeGeometryNode = function(name, pcoGeometry, boundingBox)
     this.hasRGB = false;
     this.hasClass = false;
     this.hasRetain = false;
+    //this.existence = true;
 }
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.addChild = function(child){
@@ -28,7 +29,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.addChild = function(child){
 }
 
 PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
-	if(this.loading === true || this.pcoGeometry.numNodesLoading > 3){
+	if(this.loading === true/* || this.pcoGeometry.numNodesLoading > 3*/){
 		return 0;
 	}
 	
@@ -37,10 +38,10 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 	}
 	
 	var pointsnumber = 0;
-    this.pcoGeometry.numNodesLoading++;
-	this.loading = true;
 	var node = this;
     var node_url = url + "/" + node.name + ".lasdb";
+    this.pcoGeometry.numNodesLoading++;
+    this.loading = true;
     if(1/*PCDviewr.utils.pathExists(node_url)*/){
     //node.pcdLoad(node_url);
 	try{
@@ -52,6 +53,12 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.load = function(url){
 		if (xhr.readyState == 4) {
 			if (xhr.status == 200 || xhr.status == 0) {
 				var buffer = xhr.response;
+                if ( buffer == null ) {
+                    //node.existence = false;
+                    //node.pcoGeometry.numNodesLoading-- ;
+                    //node.loading = false;
+                    }
+                else
                 pointsnumber = node.bufferLoaded(buffer);
 			} else {
 				console.log('Failed to load file! HTTP status: ' + xhr.status + ", file: " + node_url);
@@ -84,7 +91,7 @@ PCDviewr.PointCloudOctreeGeometryNode.prototype.bufferLoaded = function(buffer){
 	//console.log("loaded: " + this.name);
     var little_endian = true;
     var headerlength = 8;
-    if ( buffer == null ) {return 0;}
+
     this.parseHeader(new DataView(buffer,0,headerlength),little_endian);
 
 	var geometry = new THREE.BufferGeometry();
