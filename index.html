@@ -8,6 +8,7 @@
 	
 	<script src="js/three.js"></script>
 	<script src="js/OrbitControls.js"></script>
+	<script src="js/TrackballControls.js"></script>
 	<script src="js/stats.min.js"></script>
 	<script src="js/dat.gui.min.js"></script>
 	<script src="js/PCDviewr.js"></script>
@@ -111,7 +112,7 @@
 			camera.position.z = 0;
 			camera.position.y = 2500;
 			camera.position.x = 0;
-			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls = new THREE.TrackballControls(camera, renderer.domElement);
             controls.zoomSpeed = 1;
             controls.rotateSpeed = 1;
             controls.keyPanSpeed = 8;
