@@ -29,7 +29,7 @@ PCDviewr.PointCloudOctreeProxyNode.prototype = Object.create(THREE.Object3D.prot
 PCDviewr.PointCloudOctree = function(geometry, material){
 	THREE.Object3D.call( this );
 
-    PCDviewr.PointCloudOctree.lru = PCDviewr.PointCloudOctree.lru || new LRU();
+  PCDviewr.PointCloudOctree.lru = PCDviewr.PointCloudOctree.lru || new LRU();
 	
 	this.pcoGeometry = geometry;
 	this.boundingBox = this.pcoGeometry.boundingBox;
@@ -42,104 +42,48 @@ PCDviewr.PointCloudOctree = function(geometry, material){
 	this.LODFalloff = 1.3;
 	this.LOD = 4;
 
-    this.ViewMode = "color_Specified"; //color_Texture color_Intensity color_Class color_Height color_Specified(gray)
-    this.maxIntensity = geometry.maxIntensity;
-    this.minIntensity = geometry.minIntensity;
-    this.MaxdeltaIntensity = this.maxIntensity - this.minIntensity;
+  this.ViewMode = "color_Specified"; //color_Texture color_Intensity color_Class color_Height color_Specified(gray)
+  this.maxIntensity = geometry.maxIntensity;
+  this.minIntensity = geometry.minIntensity;
+  this.MaxdeltaIntensity = this.maxIntensity - this.minIntensity;
 
-    var _endPointColors = [];
-    _endPointColors.push(new THREE.Vector3(0, 0, 1.0));
-    _endPointColors.push(new THREE.Vector3(0, 1.0, 1.0));
-    _endPointColors.push(new THREE.Vector3(0, 1.0, 0));
-    _endPointColors.push(new THREE.Vector3(1.0, 1.0, 0));
-    _endPointColors.push(new THREE.Vector3(1.0, 0, 0));
-    this.endPointColors = _endPointColors;
-    
-    this.statisticalMaxz = geometry.statisticalMaxz;
-    this.statisticalMinz = geometry.statisticalMinz;
-    this.offset_z = geometry.center.z;
-    this.maxHeight = this.statisticalMaxz - this.offset_z;
-    this.minHeight = this.statisticalMinz - this.offset_z;
-    this.rampLength = this.maxHeight - this.minHeight;
-    this.sectionLength = this.rampLength / this.endPointColors.length;
+  var _endPointColors = [];
+  _endPointColors.push(new THREE.Vector3(0, 0, 1.0));
+  _endPointColors.push(new THREE.Vector3(0, 1.0, 1.0));
+  _endPointColors.push(new THREE.Vector3(0, 1.0, 0));
+  _endPointColors.push(new THREE.Vector3(1.0, 1.0, 0));
+  _endPointColors.push(new THREE.Vector3(1.0, 0, 0));
+  this.endPointColors = _endPointColors;
+  
+  this.statisticalMaxz = geometry.statisticalMaxz;
+  this.statisticalMinz = geometry.statisticalMinz;
+  this.offset_z = geometry.center.z;
+  this.maxHeight = this.statisticalMaxz - this.offset_z;
+  this.minHeight = this.statisticalMinz - this.offset_z;
+  this.rampLength = this.maxHeight - this.minHeight;
+  this.sectionLength = this.rampLength / this.endPointColors.length;
 
-    this.numVisiblePoints = 0;
+  this.numVisiblePoints = 0;
 
-    this.OBJECTCLASS = {
-        NONE:new THREE.Vector3(0.5, 0.5, 0.5),
-        UNKNOWN:new THREE.Vector3(0.5, 0.5, 0.5),
-        GROUND:new THREE.Vector3(0.94, 0.89, 0.69),
-        BUILDING:new THREE.Vector3(0.3, 0.74, 0.77),
-        UTILITYPOLE:new THREE.Vector3(0.92, 0.81, 0.0),
-        TRAFFICSIGN:new THREE.Vector3(0.90, 0.15, 0.1),
-        TREE:new THREE.Vector3(0.56, 0.76, 0.12),
-        STREETLAMP:new THREE.Vector3(1.0, 0.5, 0.0),
-        ENCLOSURE:new THREE.Vector3(0.65, 0.87, 0.93),
-        CAR:new THREE.Vector3(0.72, 0.5, 0.34),
-        ROAD:new THREE.Vector3(0.0, 0.0, 1.0),
-        ROADMARKING:new THREE.Vector3(1.0, 1.0, 1.0),
-        UNKNOWN_POLE:new THREE.Vector3(0.0, 0.0, 0.0),
-        POWERLINE:new THREE.Vector3(1.0, 0.68, 0.79),
-        CURB:new THREE.Vector3(1.0, 1.0, 1.0),
-        BUSH:new THREE.Vector3(0.56, 0.76, 0.12),
-        UNKNOWN_PLANE:new THREE.Vector3(0.3, 0.76, 0.87)
-    };
-/*
-    enum OBJECTCLASS
-    {
-        NONE = -1,		//未启用类别
-            UNKNOWN = 0,	//未知类别
-            GROUND,			//地面;
-            BUILDING,       //建筑物;
-            UTILITYPOLE,    //电线杆;
-            TRAFFICSIGN,    //交通标志牌;
-            TREE,           //树;
-            STREETLAMP,     //路灯;
-            ENCLOSURE,      //围墙;
-            CAR,            //汽车;
-            ROAD,
-            ROADMARKING,		//交通标线;
-            UNKNOWN_POLE,
-            POWERLINE,
-            CURB,
-            BUSH,
-            UNKNOWN_PLANE
-    };
-
-    const osg::Vec3f DEFAULT_CLASS_COLORS[] = {
-    //未分类;
-    { 0.5f, 0.5f, 0.5f },
-    //地面
-    { 0.94f, 0.89f, 0.69f },
-    //建筑物;
-    { 0.3f, 0.74f, 0.77f },
-    //电线杆;
-    { 0.92f, 0.81f, 0.0f },
-    //标牌;
-    { 0.90f, 0.15f, 0.1f },
-    //树木;
-    { 0.56f, 0.76f, 0.12f },
-    //路灯;
-    { 1.0f, 0.5f, 0.0f },
-    //围墙;
-    { 0.65f, 0.87f, 0.93f },
-    //汽车;
-    { 0.72f, 0.5f, 0.34f },
-    //road
-    { 0.0f, 0.0f, 1.0f },
-    //ROADMARKING
-    { 1.0f, 1.0f, 1.0f },
-    //UNKNOWN_POLE
-    { 0.0f, 0.0f, 0.0f },
-    //POWERLINE
-    { 1.0f, 0.68f, 0.79f },
-    //CURB
-    { 1.0f, 1.f, 1.f},
-    //BUSH;
-    { 0.56f, 0.76f, 0.12f },
-    //UNKNOWN_PLANE;
-    { 0.3f, 0.76f, 0.87f }
-};  */
+  this.OBJECTCLASS = {
+      NONE:new THREE.Vector3(0.5, 0.5, 0.5),
+      UNKNOWN:new THREE.Vector3(0.5, 0.5, 0.5),
+      GROUND:new THREE.Vector3(0.94, 0.89, 0.69),
+      BUILDING:new THREE.Vector3(0.3, 0.74, 0.77),
+      UTILITYPOLE:new THREE.Vector3(0.92, 0.81, 0.0),
+      TRAFFICSIGN:new THREE.Vector3(0.90, 0.15, 0.1),
+      TREE:new THREE.Vector3(0.56, 0.76, 0.12),
+      STREETLAMP:new THREE.Vector3(1.0, 0.5, 0.0),
+      ENCLOSURE:new THREE.Vector3(0.65, 0.87, 0.93),
+      CAR:new THREE.Vector3(0.72, 0.5, 0.34),
+      ROAD:new THREE.Vector3(0.0, 0.0, 1.0),
+      ROADMARKING:new THREE.Vector3(1.0, 1.0, 1.0),
+      UNKNOWN_POLE:new THREE.Vector3(0.0, 0.0, 0.0),
+      POWERLINE:new THREE.Vector3(1.0, 0.68, 0.79),
+      CURB:new THREE.Vector3(1.0, 1.0, 1.0),
+      BUSH:new THREE.Vector3(0.56, 0.76, 0.12),
+      UNKNOWN_PLANE:new THREE.Vector3(0.3, 0.76, 0.87)
+  };
 	
 	var rootProxy = new PCDviewr.PointCloudOctreeProxyNode(this.pcoGeometry.root);
 	this.add(rootProxy);  //this -> THREE.Object3D
